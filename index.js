@@ -4,6 +4,8 @@ var Keo = require('./keo.js');
 var express = require('express');
 var app = express();
 
+var cool = require('cool-ascii-faces');
+
 var uristring =
   process.env.MONGOLAB_URI ||
   process.env.MONGOHQ_URL ||

@@ -10,7 +10,6 @@ var Keo = (function() {
     User.findOrCreate({ user: winner }, function(err, user, created) {
       user.viraos = user.viraos + 1;
       user.save();
-      console.log('A new user from "%s" was inserted', user.user);
     });
     var response = "Un virao para " + winner;
     channel.send(response);
@@ -56,7 +55,7 @@ var Keo = (function() {
       }
 
     } else {
-      var typeError = type !== 'message' ? "unexpected type " + type + "." : null;
+      var typeError = "unexpected type " + type + ".";
       var textError = text == null ? 'text was undefined.' : null;
       var channelError = channel == null ? 'channel was undefined.' : null;
       var errors = [typeError, textError, channelError].filter(function(element) {
