@@ -1,0 +1,2 @@
+mongo: mongod --dbpath ~/data/db
+foreman: foreman start -f Procfile
