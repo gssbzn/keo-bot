@@ -7,9 +7,11 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "express": "~4.9.x",
     "slack-client": "~1.4.x",
     "mongoose": "~4.0.x",
-    "mongoose-findorcreate": "~0.1.x"
+    "mongoose-findorcreate": "~0.1.x",
+    "cool-ascii-faces": "~1.3.x"
   },
   "engines": {
     "node": "0.12.4"
