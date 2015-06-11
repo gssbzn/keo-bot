@@ -7,7 +7,6 @@ var Keo = (function() {
   }
 
   var add_virao = function(channel, winner){
-
     User.findOrCreate({ user: winner }, function(err, user, created) {
       user.viraos = user.viraos + 1;
       user.save();
@@ -47,10 +46,10 @@ var Keo = (function() {
       var re = /<.*?>/g;
       var mentions = text.match(re);
 
-      if(mentions && mentions.length == 1){
-        return virao_list(channel)
-      } else if(mentions && mentions.length > 1){
-        if(mentions[0].indexOf(this._slack.self.id) != -1 && text.indexOf("virao") != -1){
+      if(mentions && mentions[0].indexOf(this._slack.self.id) != -1 && text.indexOf('virao') != -1){
+        if(mentions.length == 1){
+          return virao_list(channel)
+        } else if(mentions.length > 1){
           var response = add_virao(channel, mentions[1])
           return console.log("@" + this._slack.self.name + " responded with \"" + response + "\"");
         }
