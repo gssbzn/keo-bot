@@ -4,7 +4,7 @@ var i18n = require("i18n");
 i18n.configure({
     locales:['en', 'es'],
     directory: __dirname + '/locales',
-    defaultLocale: 'es'
+    defaultLocale: process.env.LOCALE
 });
 
 var KudosBot = (function() {
@@ -24,7 +24,7 @@ var KudosBot = (function() {
 
   var kudos_list = function(channel){
     User.find({}, 'user kudos', function(err, users) {
-      var response = i18n.__('%s List', this._kudos_word);
+      var response = i18n.__('%s List', process.env.KUDOS_WORD);
       for (var i = 0;i<users.length;i++){
         response += "\n" + i18n.__('%s has %d %s', users[i].user, users[i].kudos, process.env.KUDOS_WORD);
       }
@@ -47,11 +47,7 @@ var KudosBot = (function() {
     if (type === 'message' && (text != null) && (channel != null)) {
       var re = /<.*?>/g;
       var mentions = text.match(re);
-      console.log("Test1");
-      console.log(process.env.KUDOS_WORD);
-      console.log(text.indexOf(process.env.KUDOS_WORD))
       if(mentions && mentions[0].indexOf(this._slack.self.id) != -1 && text.indexOf(process.env.KUDOS_WORD) != -1){
-        console.log("Test2");
         if(mentions.length == 1){
           return kudos_list(channel, this)
         } else if(mentions.length > 1){
