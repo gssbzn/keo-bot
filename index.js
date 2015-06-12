@@ -1,3 +1,4 @@
+require('newrelic');
 var mongoose = require('mongoose');
 var Slack = require('slack-client');
 var KudosBot = require('./kudos_bot.js');
