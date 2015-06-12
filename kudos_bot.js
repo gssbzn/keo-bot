@@ -4,7 +4,7 @@ var i18n = require("i18n");
 i18n.configure({
     locales:['en', 'es'],
     directory: __dirname + '/locales',
-    defaultLocale: process.env.LOCALE
+    defaultLocale: process.env.LOCALE || 'en'
 });
 
 var KudosBot = (function() {
@@ -49,9 +49,9 @@ var KudosBot = (function() {
       var mentions = text.match(re);
       if(mentions && mentions[0].indexOf(this._slack.self.id) != -1 && text.indexOf(process.env.KUDOS_WORD) != -1){
         if(mentions.length == 1){
-          return kudos_list(channel, this)
+          return kudos_list(channel)
         } else if(mentions.length > 1){
-          var response = add_kudos(channel, mentions[1], this)
+          var response = add_kudos(channel, mentions[1])
           return console.log("@" + this._slack.self.name + " responded with \"" + response + "\"");
         }
       }

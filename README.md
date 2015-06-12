@@ -2,6 +2,18 @@
 
 A test Slack bot that counts kudos to your team mates.
 
+## Configuration
+
+Make sure you configure the needed env variables
+- TOKEN
+  > Slack authentication token.
+
+- KUDOS_WORD
+  > The word you wish to use to congratulate your team mates.
+
+- LOCALE
+  > Locale for messages from the bot, right now only spanish and english are supported.
+
 ## Running Locally
 
 Make sure you have [Node.js](http://nodejs.org/) and [MongoDB](https://www.mongodb.org/).
