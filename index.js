@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Slack = require('slack-client');
-var Keo = require('./keo.js');
+var KudosBot = require('./kudos_bot.js');
 var express = require('express');
 var app = express();
 
@@ -20,14 +20,14 @@ db.once('open', function (callback) {
 
 var slack = new Slack(process.env.TOKEN, true, true)
 
-var keo = new Keo(slack);
+var kudos_bot = new KudosBot(slack);
 
 slack.on('open', function(){
-  keo.connect();
+  kudos_bot.connect();
 });
 
 slack.on('message', function(message) {
-  keo.processMessage(message);
+  kudos_bot.processMessage(message);
 });
 
 slack.on('error', function(error) {

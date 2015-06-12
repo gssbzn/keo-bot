@@ -1,42 +1,45 @@
 var mongoose = require('mongoose');
 var User = require('./models/user.js');
+var i18n = require("i18n");
+i18n.configure({
+    locales:['en', 'es'],
+    directory: __dirname + '/locales',
+    defaultLocale: 'es'
+});
 
-var Keo = (function() {
-  function Keo(_slack) {
+var KudosBot = (function() {
+  function KudosBot(_slack) {
     this._slack = _slack;
   }
 
-  var add_virao = function(channel, winner){
+  var add_kudos = function(channel, winner){
     User.findOrCreate({ user: winner }, function(err, user, created) {
-      user.viraos = user.viraos + 1;
+      user.kudos = user.kudos + 1;
       user.save();
     });
-    var response = "Un virao para " + winner;
+    var response = i18n.__('%s to %s', process.env.KUDOS_WORD, winner);
     channel.send(response);
     return response;
   }
 
-  var virao_list = function(channel){
-    User.find({}, 'user viraos', function(err, users) {
-      var response = "Lista de los viraos:";
-      console.log(users);
+  var kudos_list = function(channel){
+    User.find({}, 'user kudos', function(err, users) {
+      var response = i18n.__('%s List', this._kudos_word);
       for (var i = 0;i<users.length;i++){
-        console.log(users[i].user + " tiene " + users[i].viraos);
-        response += "\n" + users[i].user + " tiene " + users[i].viraos;
-
+        response += "\n" + i18n.__('%s has %d %s', users[i].user, users[i].kudos, process.env.KUDOS_WORD);
       }
       channel.send(response);
     });
   }
 
-  Keo.prototype.connect = function() {
+  KudosBot.prototype.connect = function() {
     var unreads = this._slack.getUnreadCount();
     console.log("Welcome to Slack. You are @" + this._slack.self.name + " of " + this._slack.team.name);
     messages = unreads === 1 ? 'message' : 'messages';
     return console.log("You have " + unreads + " unread " + messages);
   }
 
-  Keo.prototype.processMessage = function(message){
+  KudosBot.prototype.processMessage = function(message){
 
     var type = message.type, text = message.text;
     var channel = this._slack.getChannelGroupOrDMByID(message.channel);
@@ -44,12 +47,15 @@ var Keo = (function() {
     if (type === 'message' && (text != null) && (channel != null)) {
       var re = /<.*?>/g;
       var mentions = text.match(re);
-
-      if(mentions && mentions[0].indexOf(this._slack.self.id) != -1 && text.indexOf('virao') != -1){
+      console.log("Test1");
+      console.log(process.env.KUDOS_WORD);
+      console.log(text.indexOf(process.env.KUDOS_WORD))
+      if(mentions && mentions[0].indexOf(this._slack.self.id) != -1 && text.indexOf(process.env.KUDOS_WORD) != -1){
+        console.log("Test2");
         if(mentions.length == 1){
-          return virao_list(channel)
+          return kudos_list(channel, this)
         } else if(mentions.length > 1){
-          var response = add_virao(channel, mentions[1])
+          var response = add_kudos(channel, mentions[1], this)
           return console.log("@" + this._slack.self.name + " responded with \"" + response + "\"");
         }
       }
@@ -66,8 +72,8 @@ var Keo = (function() {
 
   }
 
-  return Keo;
+  return KudosBot;
 
 })();
 
-module.exports = Keo;
+module.exports = KudosBot;
