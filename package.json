@@ -16,7 +16,8 @@
     "newrelic": "~1.20.x"
   },
   "engines": {
-    "node": "0.12.4"
+    "node": "v5.3.0",
+    "npm": "3.3.12"
   },
   "repository": {
     "type": "git",

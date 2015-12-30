@@ -47,12 +47,14 @@ var KudosBot = (function() {
     if (type === 'message' && (text != null) && (channel != null)) {
       var re = /<.*?>/g;
       var mentions = text.match(re);
-      if(mentions && mentions[0].indexOf(this._slack.self.id) != -1 && text.indexOf(process.env.KUDOS_WORD) != -1){
-        if(mentions.length == 1){
-          return kudos_list(channel)
-        } else if(mentions.length > 1){
-          var response = add_kudos(channel, mentions[1])
-          return console.log("@" + this._slack.self.name + " responded with \"" + response + "\"");
+      if(mentions && mentions[0].indexOf(this._slack.self.id) != -1){
+        if(text.indexOf(process.env.KUDOS_WORD) != -1){
+          if(mentions.length == 1){
+            return kudos_list(channel)
+          } else if(mentions.length > 1){
+            var response = add_kudos(channel, mentions[1])
+            return console.log("@" + this._slack.self.name + " responded with \"" + response + "\"");
+          }
         }
       }
 
@@ -65,11 +67,8 @@ var KudosBot = (function() {
       }).join(' ');
       return console.log("@" + this._slack.self.name + " could not respond. " + errors);
     }
-
   }
-
   return KudosBot;
-
 })();
 
 module.exports = KudosBot;

@@ -2,6 +2,7 @@ require('newrelic');
 var mongoose = require('mongoose');
 var Slack = require('slack-client');
 var KudosBot = require('./kudos_bot.js');
+var CosechasBot = require('./cosechas_bot.js');
 var express = require('express');
 var app = express();
 
@@ -22,6 +23,7 @@ db.once('open', function (callback) {
 var slack = new Slack(process.env.TOKEN, true, true)
 
 var kudos_bot = new KudosBot(slack);
+var cosechas_bot = new CosechasBot(slack);
 
 slack.on('open', function(){
   kudos_bot.connect();
@@ -29,6 +31,7 @@ slack.on('open', function(){
 
 slack.on('message', function(message) {
   kudos_bot.processMessage(message);
+  cosechas_bot.processMessage(message);
 });
 
 slack.on('error', function(error) {
