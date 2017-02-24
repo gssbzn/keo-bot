@@ -1,28 +1,23 @@
-var mongoose = require('mongoose');
-var User = require('./models/user.js');
-var i18n = require("i18n");
-i18n.configure({
-    locales:['en', 'es'],
-    directory: __dirname + '/locales',
-    defaultLocale: process.env.LOCALE || 'en'
-});
+const mongoose = require('mongoose');
+const User = require('./models/user.js');
+const i18n = require('i18n');
 
-var KudosBot = (function() {
+const KudosBot = (function() {
   function KudosBot(_slack) {
     this._slack = _slack;
   }
 
-  var add_kudos = function(channel, winner){
+  function addKudos(channel, winner){
     User.findOrCreate({ user: winner }, function(err, user, created) {
       user.kudos = user.kudos + 1;
       user.save();
     });
-    var response = i18n.__('%s to %s', process.env.KUDOS_WORD, winner);
+    const response = i18n.__('%s to %s', process.env.KUDOS_WORD, winner);
     channel.send(response);
     return response;
   }
 
-  var kudos_list = function(channel){
+  function kudosList(channel){
     User.find({}, 'user kudos', function(err, users) {
       var response = i18n.__('%s List', process.env.KUDOS_WORD);
       for (var i = 0;i<users.length;i++){
@@ -49,9 +44,9 @@ var KudosBot = (function() {
       var mentions = text.match(re);
       if(mentions && mentions[0].indexOf(this._slack.self.id) != -1 && text.indexOf(process.env.KUDOS_WORD) != -1){
         if(mentions.length == 1){
-          return kudos_list(channel)
+          return kudosList(channel)
         } else if(mentions.length > 1){
-          var response = add_kudos(channel, mentions[1])
+          var response = addKudos(channel, mentions[1])
           return console.log("@" + this._slack.self.name + " responded with \"" + response + "\"");
         }
       }
@@ -69,7 +64,6 @@ var KudosBot = (function() {
   }
 
   return KudosBot;
-
 })();
 
 module.exports = KudosBot;

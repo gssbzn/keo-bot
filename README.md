@@ -41,4 +41,4 @@ $ foreman start -f Procfile.dev
 
 ## License
 
-MIT License. Copyright 2015 Gustavo Bazan. http://gustavobazan.com
+MIT License. Copyright 2017 Gustavo Bazan. http://gustavobazan.com
