@@ -1,48 +1,93 @@
-var mongoose = require('mongoose');
-var Slack = require('slack-client');
-var KudosBot = require('./kudos_bot.js');
-var express = require('express');
-var app = express();
+const mongoose = require('mongoose');
+const Slack = require('slack-client');
+const KudosBot = require('./kudos_bot.js');
+const express = require('express');
+const app = express();
 
-var cool = require('cool-ascii-faces');
+const cool = require('cool-ascii-faces');
+const i18n = require('i18n');
 
-var uristring =
-  process.env.MONGOLAB_URI ||
-  process.env.MONGOHQ_URL ||
-  'mongodb://localhost/ViraoList';
+const BotApp = (function() {
+  let app;
+  let port;
+  let slack;
+  let db;
+  let uristring;
 
-mongoose.connect(uristring);
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function (callback) {
-  console.log('mongo connected');
-});
+  const publicAPI = {
+    init,
+    start,
+  };
 
-var slack = new Slack(process.env.TOKEN, true, true)
+  function init() {
+    setupVariables();
+    initializeServer();
+    setupRoutes();
+    setUpI18n();
+    initDB();
+    initBot();
+  }
 
-var kudos_bot = new KudosBot(slack);
+  function start() {
+    // Boot the damn thing
+    app.listen(port, function() {
+      console.log('Node app is running on port', port);
+    });
+  }
 
-slack.on('open', function(){
-  kudos_bot.connect();
-});
+  function setupVariables() {
+    app = express();
+    port = process.env.PORT || 5000;
+    locale = process.env.LOCALE || 'en';
+    uristring = process.env.MONGOLAB_URI ||
+      process.env.MONGOHQ_URL ||
+      'mongodb://localhost/KudosList';
+    slack = new Slack(process.env.TOKEN, true, true);
+  }
 
-slack.on('message', function(message) {
-  kudos_bot.processMessage(message);
-});
+  function initializeServer() {
+    app.set('port', port);
+  }
 
-slack.on('error', function(error) {
-  return console.error("Error: " + error);
-});
+  function setupRoutes(){
+    app.get('/', function(request, response) {
+      response.send(cool());
+    });
+  }
 
-slack.login();
+  function setUpI18n(){
+    i18n.configure({
+      locales:['en', 'es'],
+      directory: `${__dirname}/locales`,
+      defaultLocale: locale
+    });
+  }
 
-app.set('port', (process.env.PORT || 5000));
-app.use(express.static(__dirname + '/public'));
+  function initDB(){
+    mongoose.connect(uristring);
+    db = mongoose.connection;
+    db.on('error', console.error.bind(console, 'connection error:'));
+    db.once('open', function (callback) {
+      console.log('mongo connected');
+    });
+  }
 
-app.get('/', function(request, response) {
-  response.send(cool());
-});
+  function initBot(){
+    const kudosBot = new KudosBot(slack);
+    slack.on('open', function(){
+      kudosBot.connect();
+    });
+    slack.on('message', function(message) {
+      kudosBot.processMessage(message);
+    });
+    slack.on('error', function(error) {
+      return console.error(`Error: ${error}`);
+    });
+    slack.login();
+  }
 
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
-});
+  return publicAPI;
+})();
+
+BotApp.init();
+BotApp.start();
