@@ -2,33 +2,26 @@
 
 A test Slack bot that counts kudos to your team mates.
 
-## Configuration
+![download](https://cloud.githubusercontent.com/assets/461027/23308099/e546ca48-faa1-11e6-9006-73598d5f5f4b.png)
 
-Make sure you configure the needed env variables
-- TOKEN
-  > Slack authentication token.
+## Requirements
+- [Node.js](http://nodejs.org/)
+- [MongoDB](https://www.mongodb.org/)
 
-- KUDOS_WORD
-  > The word you wish to use to congratulate your team mates.
+## Configuration and usage
 
-- LOCALE
-  > Locale for messages from the bot, right now only spanish and english are supported.
+You may need to setup the following environment variables:
+- `SLACK_TOKEN` Slack bot authentication token.
+- `KUDOS_WORD` The word you wish to use to congratulate your team mates.
+- `LOCALE` Locale for messages to and from the bot, defaults to english (en) if none is given
 
-## Running Locally
-
-Make sure you have [Node.js](http://nodejs.org/) and [MongoDB](https://www.mongodb.org/).
+### Running Locally
 
 ```sh
 $ git clone https://github.com/gssbzn/kudos-bot # or clone your own fork
 $ cd kudos-bot
 $ npm install
 $ npm start
-```
-
-Run it with foreman:
-
-```sh
-$ foreman start -f Procfile.dev
 ```
 
 ## Contributing

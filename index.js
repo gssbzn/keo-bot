@@ -42,7 +42,7 @@ const BotApp = (function() {
     uriString = process.env.MONGOLAB_URI ||
       process.env.MONGOHQ_URL ||
       'mongodb://localhost/KudosList';
-    slack = new Slack(process.env.TOKEN, true, true);
+    slack = new Slack(process.env.SLACK_TOKEN, true, true);
   }
 
   function initializeServer() {
