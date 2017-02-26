@@ -1,69 +1,74 @@
-const mongoose = require('mongoose');
+'use strict';
+
 const User = require('./models/user.js');
 const i18n = require('i18n');
 
-const KudosBot = (function() {
-  function KudosBot(_slack) {
-    this._slack = _slack;
-  }
-
-  function addKudos(channel, winner){
-    User.findOrCreate({ user: winner }, function(err, user, created) {
+const KudosBot = {
+  /**
+   * Init bot instance
+   * @param _slack slack connection instance
+   * @param _keyword keyword for kudos
+   */
+  initBot(_slack, _keyword) {
+    this.slack = _slack;
+    this.keyword = _keyword
+  },
+  /**
+   * Find or create winner user by id and count kudos
+   * @param channel channel id
+   * @param winner user id
+   */
+  addKudos(channel, winner){
+    return User.findOrCreate({ user: winner }, (err, user, _created) => {
       user.kudos = user.kudos + 1;
       user.save();
+      const response = i18n.__('%s to %s', this.keyword, winner);
+      channel.send(response);
     });
-    const response = i18n.__('%s to %s', process.env.KUDOS_WORD, winner);
-    channel.send(response);
-    return response;
-  }
-
-  function kudosList(channel){
-    User.find({}, 'user kudos', function(err, users) {
-      var response = i18n.__('%s List', process.env.KUDOS_WORD);
-      for (var i = 0;i<users.length;i++){
-        response += "\n" + i18n.__('%s has %d %s', users[i].user, users[i].kudos, process.env.KUDOS_WORD);
+  },
+  /**
+   * List all users with their current kudos count
+   * @param channel channel id
+   */
+  kudosList(channel){
+    User.find({}, 'user kudos', (err, users) => {
+      let response = i18n.__('%s List', this.keyword);
+      for (let i = 0; i < users.length; i++){
+        response += "\n" +
+                    i18n.__('%s has %d %s', users[i].user, users[i].kudos, this.keyword);
       }
       channel.send(response);
     });
-  }
+  },
+  /**
+   * A message when bot connects
+   */
+  connect() {
+    console.log(`Welcome to Slack. You are @${this.slack.self.name} of ${this.slack.team.name}`);
+  },
+  /**
+   * Process channels mesages and acts according to message
+   * @param message slack message object
+   */
+  processMessage(message){
+    const type = message.type;
+    const text = message.text;
+    const channel = this.slack.getChannelGroupOrDMByID(message.channel);
 
-  KudosBot.prototype.connect = function() {
-    var unreads = this._slack.getUnreadCount();
-    console.log("Welcome to Slack. You are @" + this._slack.self.name + " of " + this._slack.team.name);
-    messages = unreads === 1 ? 'message' : 'messages';
-    return console.log("You have " + unreads + " unread " + messages);
-  }
-
-  KudosBot.prototype.processMessage = function(message){
-
-    var type = message.type, text = message.text;
-    var channel = this._slack.getChannelGroupOrDMByID(message.channel);
-
-    if (type === 'message' && (text != null) && (channel != null)) {
-      var re = /<.*?>/g;
-      var mentions = text.match(re);
-      if(mentions && mentions[0].indexOf(this._slack.self.id) != -1 && text.indexOf(process.env.KUDOS_WORD) != -1){
+    if (type == 'message' && (text != null) && (channel != null)) {
+      const re = /<.*?>/g;
+      const mentions = text.match(re);
+      if(mentions && mentions[0].includes(this.slack.self.id) && text.includes(this.keyword)){
         if(mentions.length == 1){
-          return kudosList(channel)
+          return this.kudosList(channel)
         } else if(mentions.length > 1){
-          var response = addKudos(channel, mentions[1])
-          return console.log("@" + this._slack.self.name + " responded with \"" + response + "\"");
+          return this.addKudos(channel, mentions[1]);
         }
       }
-
     } else {
-      var typeError = "unexpected type " + type + ".";
-      var textError = text == null ? 'text was undefined.' : null;
-      var channelError = channel == null ? 'channel was undefined.' : null;
-      var errors = [typeError, textError, channelError].filter(function(element) {
-        return element !== null;
-      }).join(' ');
-      return console.log("@" + this._slack.self.name + " could not respond. " + errors);
+      console.log(`@${this.slack.self.name} could not respond.`);
     }
-
-  }
-
-  return KudosBot;
-})();
+  },
+};
 
 module.exports = KudosBot;

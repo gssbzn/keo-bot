@@ -12,7 +12,7 @@ const BotApp = (function() {
   let port;
   let slack;
   let db;
-  let uristring;
+  let uriString;
 
   const publicAPI = {
     init,
@@ -39,7 +39,7 @@ const BotApp = (function() {
     app = express();
     port = process.env.PORT || 5000;
     locale = process.env.LOCALE || 'en';
-    uristring = process.env.MONGOLAB_URI ||
+    uriString = process.env.MONGOLAB_URI ||
       process.env.MONGOHQ_URL ||
       'mongodb://localhost/KudosList';
     slack = new Slack(process.env.TOKEN, true, true);
@@ -64,16 +64,17 @@ const BotApp = (function() {
   }
 
   function initDB(){
-    mongoose.connect(uristring);
+    mongoose.connect(uriString);
     db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error:'));
-    db.once('open', function (callback) {
+    db.once('open', (_callback) => {
       console.log('mongo connected');
     });
   }
 
   function initBot(){
-    const kudosBot = new KudosBot(slack);
+    const kudosBot = Object.create(KudosBot);
+    kudosBot.initBot(slack, process.env.KUDOS_WORD)
     slack.on('open', function(){
       kudosBot.connect();
     });
